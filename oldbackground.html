@@ -1,0 +1,122 @@
+<html>
+<head>
+
+<script type="text/javascript" src="jquery.js"></script>
+
+<script>
+  // Called when the user clicks on the browser action.
+  /*chrome.browserAction.onClicked.addListener(function(tab) {
+    chrome.tabs.executeScript(null, {code:"document.body.bgColor='red'"});
+  });
+	*/
+  //chrome.browserAction.setBadgeBackgroundColor({color:[0, 200, 0, 100]});
+  console.log('lol');
+  var i = 0;
+  window.setInterval(function() {
+	chrome.browserAction.setBadgeText({text:String(i)});
+		i++;
+	  }, 10);
+  var data = {};
+  var Dictionary;
+  var nloaded = 0;
+  
+  function keys(obj) {
+	var ary = [];
+	for(var prop in obj) {
+		ary.push(prop);
+	}
+	return ary;
+  }
+  
+  function extendList(dic, key, s) {
+	var lst = dic[key];
+	
+	if(!lst)
+		lst = {};
+
+	for(var i=0; i<s.length/2; i++)
+		lst[s[i*2]] = true;
+	dic[key] = lst;
+  }  
+  
+  var glob = {'glob':''};
+  
+  function loadData(dat) {
+	console.log('lol');
+    var lines = dat.split('\n');
+	for(var line in lines) {
+		if(line < 10)
+			console.log(lines[line]);
+		var ndat = lines[line].split(' ');
+		data[ndat[0]] = ndat.slice(2, ndat.length);
+	/*
+	$(dat).find("entry").each(function() {				
+		var elt = $(this);
+		extendList(data, elt.attr('key'), elt.attr('kanji'));
+	});  
+	nloaded++;
+	if(nloaded == loadFiles.length) {
+		for(var key in data) {			
+			data[key] = keys(data[key]);
+		}
+		console.log(data['accompany']);
+	}
+	*/
+	}
+  }
+  
+/*
+A	Agrave&	192&#	xC0&#	Capital A-grave
+a	agrave&	224&#	xE0&#	Lowercase A-grave
+A	Aacute&	193&#	xC1&#	Capital A-acute
+a	aacute&	225&#	xE1&#	Lowercase A-acute
+A	Acirc&	194&#	xC2&#	Capital A-circumflex
+a	acirc&	226&#	xE2&#	Lowercase A-circumflex
+A	Atilde&	195&#	xC3&#	Capital A-tilde
+a	atilde&	227&#	xE3&#	Lowercase A-tilde
+A	Auml&	196&#	xC4&#	Capital A-umlaut
+a	auml&	228&#	xE4&#	Lowercase A-umlaut
+A	Aring&	197&#	xC5&#	Capital A-ring
+a	aring&	229&#	xE5&#	Lowercase A-umlaut
+?	 	256&#	x100&#	Capital A-macron
+?	 	257&#	x101&#	Lowercase A-macron
+?	 	258&#	x102&#	Capital A-breve
+?	 	259&#	x103&#	Lowercase A-breve
+?	 	260&#	x104&#	Capital A-ogonek
+?	 	261&#	x105&#	Lowercase A-ogonek
+?	 	478&#	x1DE&#	Capital A-diaeresis and macron
+?	 	479&#	x1DF&#	Lowercase A-diaeresis and macron
+?	 	506&#	x1FA&#	Capital A-acute ring
+*/	
+  
+  $(document).ready(function() {
+      console.log('rdy');
+	  //for(filename in loadFiles) {		
+	 //	$.get(loadFiles[filename], loadData);
+	  //}
+	  $.ajax({
+	  url: 'cmudict.txt',
+	  success: loadData,
+	  dataType: 'text'
+	});
+
+	  chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+	 
+	  console.log(sender.tab ?
+					"from a content script:" + sender.tab.url :
+					"from the extension");
+		if (request.greeting == "getDict") {
+			console.log('sendin dic');			
+			sendResponse({"data": data});
+		}      
+		else
+		  sendResponse({}); // snub them.
+		
+	  });
+
+
+  });
+  
+</script>
+</head>
+</html>

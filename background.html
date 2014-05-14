@@ -1,0 +1,83 @@
+<html>
+<head>
+
+<script type="text/javascript" src="jquery.js"></script>
+
+<script>
+  // Called when the user clicks on the browser action.
+  /*chrome.browserAction.onClicked.addListener(function(tab) {
+    chrome.tabs.executeScript(null, {code:"document.body.bgColor='red'"});
+  });
+	*/
+  //chrome.browserAction.setBadgeBackgroundColor({color:[0, 200, 0, 100]});
+  console.log('lol');
+  var i = 0;
+  window.setInterval(function() {
+	chrome.browserAction.setBadgeText({text:String(i)});
+		i++;
+	  }, 10);
+  var data = {};
+  var Dictionary;
+  var nloaded = 0;
+  var loadFiles = ['Heisig.xml', 'Kanjidic.xml', 'KIC.xml'];
+  
+  function keys(obj) {
+	var ary = [];
+	for(var prop in obj) {
+		ary.push(prop);
+	}
+	return ary;
+  }
+  
+  function extendList(dic, key, s) {
+	var lst = dic[key];
+	
+	if(!lst)
+		lst = {};
+
+	for(var i=0; i<s.length/2; i++)
+		lst[s[i*2]] = true;
+	dic[key] = lst;
+  }  
+  
+  function loadData(dat) {
+	
+	$(dat).find("entry").each(function() {				
+		var elt = $(this);
+		extendList(data, elt.attr('key'), elt.attr('kanji'));
+	});  
+	nloaded++;
+	if(nloaded == loadFiles.length) {
+		for(var key in data) {			
+			data[key] = keys(data[key]);
+		}
+		console.log(data['accompany']);
+	}	
+  }
+  
+  $(document).ready(function() {
+      console.log('rdy');
+	  for(filename in loadFiles) {		
+		$.get(loadFiles[filename], loadData);
+	  }
+
+	  chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+	 
+	  console.log(sender.tab ?
+					"from a content script:" + sender.tab.url :
+					"from the extension");
+		if (request.greeting == "getDict") {
+			console.log('sendin dic');			
+			sendResponse({"data": data});
+		}      
+		else
+		  sendResponse({}); // snub them.
+		
+	  });
+
+
+  });
+  
+</script>
+</head>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "A browser actio the page red",
+  "version": "2",
+  "browser_action": {
+      "default_title": "Make this page red",
+      "default_icon": "icon.png"
+  },
+  "background": {
+	"page":"oldbackground.html"
+  },
+  "permissions": [
+    "tabs", "http://*/*"
+  ],  
+ "content_scripts": [
+    {
+      "matches": ["http://*/*"],
+      "js": ["jquery.js", "myscript.js"],
+	  "run_at": "document_end"
+    }
+	]	
+  
+}
